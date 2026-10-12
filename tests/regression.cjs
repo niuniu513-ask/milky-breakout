@@ -33,5 +33,9 @@ vm.runInContext('newGame(); state = S.PLAY; levelClear(); resumeGame(); gameOver
 if (!vm.runInContext('!storage.available && level === 2 && progress.level === 2', blocked)) throw Error('blocked storage');
 const saved = createContext({'milkyBreakout.progress': '{"level":6,"score":1200,"rescued":40,"stage":999,"endless":0}'});
 vm.runInContext('resumeGame()', saved);
-if (!vm.runInContext('level === 6 && endless && stage === 2 && rescued === 40 && score === 1200', saved)) throw Error('reload checkpoint');
+if (!vm.runInContext('level === 6 && !endless && stage === 2 && rescued === 40 && score === 1200', saved)) throw Error('reload checkpoint');
 console.log('3 storage checks passed (invalid data, denied storage, reloaded checkpoint)');
+
+const campaign = createContext();
+const report = vm.runInContext(fs.readFileSync(path.join(__dirname, 'campaign-regression.js'), 'utf8'), campaign);
+console.log(JSON.stringify(report));

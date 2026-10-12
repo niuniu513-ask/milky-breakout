@@ -3,7 +3,7 @@
   function assert(ok, label) { if (!ok) throw new Error(label); checks.push(label); }
   settings.sound = false;
   newGame(); state = S.PLAY; showDlg(null);
-  assert(level === 1 && lives === 3 && bricks.length === 24, 'new game');
+  assert(level === 1 && lives === 5 && bricks.length === 16, 'new game');
   assert(document.activeElement.tagName !== 'BUTTON', 'game keyboard focus');
   const k = bricks[0];
   damageBrick(k, 99);
@@ -20,11 +20,11 @@
   assert(state === S.PAUSE && paddle.x === before && !keys.ArrowRight, 'auto pause clears keys');
   slowmoT = 0.5; loop(last + 20);
   assert(slowmoT === 0.5, 'pause freezes final slow motion');
-  score = 1200; rescued = 40; endless = false; startLevel(5);
+  score = 1200; rescued = 40; endless = false; startLevel(100);
   levelClear();
-  assert(progress.level === 6 && progress.endless === 1, 'final level saves endless checkpoint');
+  assert(progress.level === 101 && progress.endless === 1, 'final level saves endless checkpoint');
   resumeGame();
-  assert(level === 6 && endless && score === 1200 && rescued === 40 && lives === 3 && stage === 2, 'endless checkpoint restores');
+  assert(level === 101 && endless && score === 1200 && rescued === 40 && lives === 5 && stage === 2, 'endless checkpoint restores');
   newGame(); state = S.PLAY;
   const chain = bricks.slice(0, 3);
   chain.forEach(b => { b.boom = true; b.hp = b.maxHp = 1; });
@@ -49,7 +49,7 @@
   loseLife();
   assert(lives === hearts - 1, 'shield cannot save a second volley');
   startLevel(2);
-  assert(!milkShield && milkCharge === 0 && milkWaves.length === 0, 'assist state resets across levels');
+  assert(milkShield && lives === 5 && milkCharge === 0 && milkWaves.length === 0, 'assist state resets across levels');
   clearProgress(); score = 0; rescued = 0; endless = false; level = 1; stage = 0;
   newGame(); clearProgress(); state = S.MENU; showDlg('dlgMenu');
   return { passed: checks.length, checks };
