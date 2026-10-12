@@ -3,7 +3,7 @@
   function assert(ok, label) { if (!ok) throw new Error(label); checks.push(label); }
   settings.sound = false;
   newGame(); state = S.PLAY; showDlg(null);
-  assert(level === 1 && lives === 5 && bricks.length === 16, 'new game');
+  assert(level === 1 && lives === START_LIVES && bricks.length === 16, 'new game');
   assert(document.activeElement.tagName !== 'BUTTON', 'game keyboard focus');
   const k = bricks[0];
   damageBrick(k, 99);
@@ -24,7 +24,7 @@
   levelClear();
   assert(progress.level === 101 && progress.endless === 1, 'final level saves endless checkpoint');
   resumeGame();
-  assert(level === 101 && endless && score === 1200 && rescued === 40 && lives === 5 && stage === 2, 'endless checkpoint restores');
+  assert(level === 101 && endless && score === 1200 && rescued === 40 && lives === START_LIVES && stage === 2, 'endless checkpoint restores');
   newGame(); state = S.PLAY;
   const chain = bricks.slice(0, 3);
   chain.forEach(b => { b.boom = true; b.hp = b.maxHp = 1; });
@@ -49,7 +49,7 @@
   loseLife();
   assert(lives === hearts - 1, 'shield cannot save a second volley');
   startLevel(2);
-  assert(milkShield && lives === 5 && milkCharge === 0 && milkWaves.length === 0, 'assist state resets across levels');
+  assert(milkShield && lives === START_LIVES && milkCharge === 0 && milkWaves.length === 0, 'assist state resets across levels');
   clearProgress(); score = 0; rescued = 0; endless = false; level = 1; stage = 0;
   newGame(); clearProgress(); state = S.MENU; showDlg('dlgMenu');
   return { passed: checks.length, checks };

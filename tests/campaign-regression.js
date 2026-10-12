@@ -6,8 +6,8 @@
   check(new Set(LEVELS.map(rows => rows.join('/'))).size === 100, 'layout variety');
   for (let lv = 1; lv <= 100; lv++) {
     startLevel(lv); state = S.PLAY;
-    check(!endless && lives === 5 && milkShield && bricks.length > 0 && !bricks.some(b => b.steel), 'valid friendly level ' + lv);
-    check(currentSpeed() >= 240 && currentSpeed() <= 380, 'bounded speed ' + lv);
+    check(!endless && lives === START_LIVES && milkShield === (lv <= 10) && bricks.length > 0 && !bricks.some(b => b.steel), 'valid friendly level ' + lv);
+    check(currentSpeed() >= 280 && currentSpeed() <= 450, 'bounded speed ' + lv);
     const signature = JSON.stringify(bricks); buildBricks(lv);
     check(JSON.stringify(bricks) === signature, 'deterministic retry ' + lv);
     const checkpointScore = score, checkpointRescue = rescued;
@@ -23,13 +23,13 @@
     check(state === S.LEVELUP && !bricks.some(b => !b.steel), 'all rows clear ' + lv);
     check(progress.level === lv + 1 && progress.endless === (lv === 100 ? 1 : 0), 'next checkpoint ' + lv);
     $('btnNext').onclick();
-    check(level === lv + 1 && state === S.PLAY && lives === 5, 'next level button ' + lv);
+    check(level === lv + 1 && state === S.PLAY && lives === START_LIVES, 'next level button ' + lv);
   }
   check(endless && level === 101 && bricks.some(b => !b.steel), 'post-campaign endless');
-  newGame(); state = S.PLAY; launched = true; assistTimer = 21.999;
+  newGame(); state = S.PLAY; launched = true; assistTimer = 49.999;
   update(1 / 120);
   check(milkWaves.length === 1, 'timed assistance');
-  bricks = bricks.slice(0, 3); playTime = 35; update(1 / 120);
+  bricks = bricks.slice(0, 2); playTime = 70; update(1 / 120);
   check(effects.laser > 0, 'last bricks laser assistance');
   for (const type of ['wide','slow','pierce','laser','catch']) { applyPower(type); check(effects[type] > 0, type + ' power'); }
   effects.wide = 0.001; update(1 / 120); check(paddle.w === paddle.baseW, 'wide expiration');
@@ -38,10 +38,10 @@
   for (let i = 0; i < 10; i++) applyPower('multi'); check(balls.length <= 7, 'ball count bounded');
   milkShield = false; lives = 1; loseLife();
   check(state === S.OVER && board.length > 0, 'death leaderboard');
-  $('btnRetry').onclick(); check(state === S.PLAY && level === progress.level && lives === 5, 'death retry');
+  $('btnRetry').onclick(); check(state === S.PLAY && level === progress.level && lives === START_LIVES, 'death retry');
   togglePause(); check(state === S.PAUSE, 'pause');
   $('btnQuit').onclick(); check(state === S.MENU && hasProgress(), 'quit retains progress');
-  $('btnStart').onclick(); check(state === S.PLAY && lives === 5, 'menu resume');
+  $('btnStart').onclick(); check(state === S.PLAY && lives === START_LIVES, 'menu resume');
   lastPointer.y = H; const b = balls[0]; check(Math.abs(aimAngleFor(b) + Math.PI / 2) < 0.001, 'touch near paddle launches upward');
   newGame(); state = S.PLAY;
   let testBall = { x: 2, y: 350, vx: -200, vy: -100, stuck: false };
@@ -69,6 +69,13 @@
   for (let i = 0; i < 2000; i++) maybeDrop(240, 200);
   check(powers.length > 0 && powers.every(p => !['fast', 'shrink'].includes(p.type)), 'campaign beneficial drops only');
   check(bricks.every(k => k.hp === 1), 'gentle first level durability');
-  playTime = 10000; level = 100; check(currentSpeed() <= 380, 'no time acceleration');
+  playTime = 10000; level = 100; check(currentSpeed() <= 450, 'no time acceleration');
+  startLevel(11); state = S.PLAY; check(!milkShield, 'later levels have no free shield');
+  milkAssist(false); check(!milkShield, 'timed support does not grant shield');
+  milkAssist(); check(milkShield, 'earned support grants shield');
+  bricks = bricks.slice(0, 2); playTime = 70; launched = true; effects.laser = 0; update(1 / 120);
+  effects.laser = 0; update(1 / 120); check(effects.laser <= 0 && finishHelpUsed, 'finish laser granted only once');
+  memeBag = []; const cycle = Array.from({length: MEME_QUOTES.length}, () => nextMeme());
+  check(new Set(cycle).size === MEME_QUOTES.length && !cycle.includes('city不city啊'), 'fresh meme cycle without repetitions');
   return { passed: checks.length, uniqueLayouts: new Set(LEVELS.map(r => r.join('/'))).size };
 })()
