@@ -28,7 +28,7 @@
   applyPower('laser'); applyPower('pierce');
   check(effects.pierce===5 && effects.laser===0 && bullets.length===0, 'pierce replaces laser');
   applyPower('laser'); check(effects.laser===6 && effects.pierce===0, 'laser replaces pierce');
-  applyPower('wide'); applyPower('wide'); check(Math.abs(paddle.w-paddle.baseW*1.35)<0.001 && effects.wide===10, 'wide refresh without stacking');
+  applyPower('wide'); applyPower('wide'); check(Math.abs(paddle.w-paddle.baseW*1.25)<0.001 && effects.wide===8, 'wide refresh without stacking');
   effects.wide=0.001; update(1/120); check(paddle.w===paddle.baseW, 'wide expiry');
   launch(); applyPower('slow'); const speed=Math.hypot(balls[0].vx,balls[0].vy);
   applyPower('slow'); check(Math.abs(Math.hypot(balls[0].vx,balls[0].vy)-speed)<0.001, 'slow refresh without compounding');
