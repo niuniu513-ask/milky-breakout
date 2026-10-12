@@ -1,0 +1,77 @@
+{
+  "assets": [
+    {
+      "id": "chicken",
+      "name": "奶鸡",
+      "file": "chicken.webp",
+      "source": "https://yhsome.github.io/SmallNaiWa/assets/fruits/04-lemon.webp",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "3e4ac795c4ac12f544ce1af7459883c6935f2656020df32627e7b810deb90175"
+    },
+    {
+      "id": "horse",
+      "name": "奶马",
+      "file": "horse.webp",
+      "source": "https://yhsome.github.io/SmallNaiWa/assets/fruits/06-tomato.webp",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "ddfeda69f1c5712a257cfa937e066f3805712d54ef6462471bd06367ad28cac5"
+    },
+    {
+      "id": "rabbit",
+      "name": "奶兔",
+      "file": "rabbit.webp",
+      "source": "https://yhsome.github.io/SmallNaiWa/assets/fruits/07-peach.webp",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "cf063675dd058148bf6a0bb5dd9fd7feb0da655f1821d5596af7bb60e139a31e"
+    },
+    {
+      "id": "confident",
+      "name": "叉腰奶娃",
+      "file": "confident.webp",
+      "source": "https://yhsome.github.io/SmallNaiWa/assets/fruits/08-pineapple.webp",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "5ed2ba2b1603a9516df67bd590dbcf3f5e4a8daeb90757dfb48e2410ef3081c2"
+    },
+    {
+      "id": "gorilla",
+      "name": "奶猩",
+      "file": "gorilla.webp",
+      "source": "https://yhsome.github.io/SmallNaiWa/assets/fruits/10-halfmelon.webp",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "2704d6ffb67bc6cc72f798bb034e9e3ca6af249803dc277099aa0594a03e3e77"
+    },
+    {
+      "id": "thinking",
+      "name": "思考奶娃",
+      "file": "thinking.webp",
+      "source": "https://www.naiwa.world/assets/naiwa-thinking.png",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "9eeb112323cedb06b72eda17de23160ebb78ec65943ea21258be3bd830c7d4cc"
+    },
+    {
+      "id": "smiling",
+      "name": "微笑奶娃",
+      "file": "smiling.webp",
+      "source": "https://www.naiwa.world/assets/naiwa-smiling.png",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed; bottom 6px floor cropped",
+      "sha256": "48561599c980cc1b8026c4ac917ad624093266d73da0d90a8a6278e9381e6098"
+    },
+    {
+      "id": "standing",
+      "name": "站立奶娃",
+      "file": "standing.webp",
+      "source": "https://www.naiwa.world/assets/naiwa-standing.png",
+      "retrieved": "2026-10-12",
+      "processing": "RGBA crop, resize <=256, WebP quality 88; edge-connected white removed for portraits; isolated fragments <1% of largest component removed",
+      "sha256": "738488224b0c07427c00f88158af23554e6b04bbaf90683c4d100e23f764795e"
+    }
+  ],
+  "source_notes": "Public community image sources. Source pages do not state an explicit asset reuse license; attribution is retained and no ownership or open-license claim is made. Existing six embedded evolution sprites are unchanged."
+}
