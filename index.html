@@ -928,7 +928,13 @@ function draw() {
   ctx.textAlign = "center";
   ctx.fillText("第 " + level + " 关" + (endless ? "（无尽）" : ""), W / 2, 28);
   ctx.textAlign = "right";
-  ctx.fillText(("❤".repeat(Math.max(lives, 0)) || "—") + "  🐸×" + rescued, W - 16, 28);
+  const heartTxt = "❤".repeat(Math.max(lives, 0)) || "—";
+  ctx.fillText(heartTxt, W - 16 - 54, 28);
+  // 解救计数：原版小奶蛙 sprite 替代绿色系统 emoji
+  const cntTxt = "×" + rescued;
+  ctx.fillText(cntTxt, W - 16, 28);
+  const cntW = ctx.measureText(cntTxt).width;
+  drawSprite(STAGE_IMGS[0], W - 16 - cntW - 14, 22, 20, 0, 1);
   // 连击
   ctx.textAlign = "left";
   ctx.font = "600 13px 'PingFang SC',sans-serif";
