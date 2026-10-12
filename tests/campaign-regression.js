@@ -6,37 +6,33 @@
   check(new Set(LEVELS.map(rows => rows.join('/'))).size === 100, 'layout variety');
   for (let lv = 1; lv <= 100; lv++) {
     startLevel(lv); state = S.PLAY;
-    check(!endless && lives === START_LIVES && milkShield === (lv <= 10) && bricks.length > 0 && !bricks.some(b => b.steel), 'valid friendly level ' + lv);
+    check(!endless && lives === START_LIVES && bricks.length > 0 && !bricks.some(b => b.steel), 'valid friendly level ' + lv);
     check(currentSpeed() >= 280 && currentSpeed() <= 450, 'bounded speed ' + lv);
     const signature = JSON.stringify(bricks); buildBricks(lv);
     check(JSON.stringify(bricks) === signature, 'deterministic retry ' + lv);
     const checkpointScore = score, checkpointRescue = rescued;
     score += 100; rescued += 2; resumeGame(); state = S.PLAY;
     check(score === checkpointScore && rescued === checkpointRescue && level === lv, 'checkpoint restores ' + lv);
-    // Sweep must actually damage every row and finish each layout through normal update/clear logic.
-    let sweeps = 0;
-    while (state === S.PLAY && sweeps < 5) {
-      milkAssist();
-      for (let t = 0; t < 230 && state === S.PLAY; t++) { slowmoT = 0; update(1 / 120); }
-      sweeps++;
+    // 使用真实奶珠碰撞逐次削减耐久，验证不依靠助阵也能通过每一关。
+    let hits = 0;
+    while (bricks.length && hits < 200) {
+      const target = bricks[bricks.length - 1];
+      stepBall({ x: target.x + target.w / 2, y: target.y + target.h + BALL_R, vx: 0, vy: -currentSpeed(), stuck: false }, 0);
+      hits++;
     }
-    check(state === S.LEVELUP && !bricks.some(b => !b.steel), 'all rows clear ' + lv);
+    slowmoT = 0; update(1 / 120);
+    check(state === S.LEVELUP && bricks.length === 0, 'ball collisions clear level ' + lv);
     check(progress.level === lv + 1 && progress.endless === (lv === 100 ? 1 : 0), 'next checkpoint ' + lv);
     $('btnNext').onclick();
     check(level === lv + 1 && state === S.PLAY && lives === START_LIVES, 'next level button ' + lv);
   }
   check(endless && level === 101 && bricks.some(b => !b.steel), 'post-campaign endless');
-  newGame(); state = S.PLAY; launched = true; assistTimer = 49.999;
-  update(1 / 120);
-  check(milkWaves.length === 1, 'timed assistance');
-  bricks = bricks.slice(0, 2); playTime = 70; update(1 / 120);
-  check(effects.laser > 0, 'last bricks laser assistance');
   for (const type of ['wide','slow','pierce','laser','catch']) { applyPower(type); check(effects[type] > 0, type + ' power'); }
   effects.wide = 0.001; update(1 / 120); check(paddle.w === paddle.baseW, 'wide expiration');
   resetBall(); applyPower('multi'); check(balls.length === 1, 'multi does not launch stuck ball');
   launch(); applyPower('multi'); check(balls.length === 3, 'multi splits moving balls');
   for (let i = 0; i < 10; i++) applyPower('multi'); check(balls.length <= 7, 'ball count bounded');
-  milkShield = false; lives = 1; loseLife();
+  lives = 1; loseLife();
   check(state === S.OVER && board.length > 0, 'death leaderboard');
   $('btnRetry').onclick(); check(state === S.PLAY && level === progress.level && lives === START_LIVES, 'death retry');
   togglePause(); check(state === S.PAUSE, 'pause');
@@ -70,11 +66,6 @@
   check(powers.length > 0 && powers.every(p => !['fast', 'shrink'].includes(p.type)), 'campaign beneficial drops only');
   check(bricks.every(k => k.hp === 1), 'gentle first level durability');
   playTime = 10000; level = 100; check(currentSpeed() <= 450, 'no time acceleration');
-  startLevel(11); state = S.PLAY; check(!milkShield, 'later levels have no free shield');
-  milkAssist(false); check(!milkShield, 'timed support does not grant shield');
-  milkAssist(); check(milkShield, 'earned support grants shield');
-  bricks = bricks.slice(0, 2); playTime = 70; launched = true; effects.laser = 0; update(1 / 120);
-  effects.laser = 0; update(1 / 120); check(effects.laser <= 0 && finishHelpUsed, 'finish laser granted only once');
   memeBag = []; const cycle = Array.from({length: MEME_QUOTES.length}, () => nextMeme());
   check(new Set(cycle).size === MEME_QUOTES.length && !cycle.includes('city不city啊'), 'fresh meme cycle without repetitions');
   return { passed: checks.length, uniqueLayouts: new Set(LEVELS.map(r => r.join('/'))).size };
