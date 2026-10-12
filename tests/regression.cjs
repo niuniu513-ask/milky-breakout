@@ -39,3 +39,5 @@ console.log('3 storage checks passed (invalid data, denied storage, reloaded che
 const campaign = createContext();
 const report = vm.runInContext(fs.readFileSync(path.join(__dirname, 'campaign-regression.js'), 'utf8'), campaign);
 console.log(JSON.stringify(report));
+const designReport = vm.runInContext(fs.readFileSync(path.join(__dirname, 'design-regression.js'), 'utf8'), createContext());
+console.log('Design checks: ' + JSON.stringify(designReport));

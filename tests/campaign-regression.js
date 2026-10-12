@@ -31,7 +31,7 @@
   effects.wide = 0.001; update(1 / 120); check(paddle.w === paddle.baseW, 'wide expiration');
   resetBall(); applyPower('multi'); check(balls.length === 1, 'multi does not launch stuck ball');
   launch(); applyPower('multi'); check(balls.length === 3, 'multi splits moving balls');
-  for (let i = 0; i < 10; i++) applyPower('multi'); check(balls.length <= 7, 'ball count bounded');
+  for (let i = 0; i < 10; i++) applyPower('multi'); check(balls.length <= 5, 'ball count bounded');
   lives = 1; loseLife();
   check(state === S.OVER && board.length > 0, 'death leaderboard');
   $('btnRetry').onclick(); check(state === S.PLAY && level === progress.level && lives === START_LIVES, 'death retry');
@@ -61,9 +61,10 @@
   update(1 / 120); check(!bricks.includes(target) && bullets.length === 0, 'laser brick collision');
   powers = [{type: 'wide', x:paddle.x, y:PADDLE_Y, vy:0}]; update(1 / 120);
   check(powers.length === 0 && paddle.w > paddle.baseW, 'falling power pickup');
-  newGame(); state = S.PLAY; powers = [];
+  newGame(); startLevel(52); state = S.PLAY; powers = [];
   for (let i = 0; i < 2000; i++) maybeDrop(240, 200);
   check(powers.length > 0 && powers.every(p => !['fast', 'shrink'].includes(p.type)), 'campaign beneficial drops only');
+  newGame();
   check(bricks.every(k => k.hp === 1), 'gentle first level durability');
   playTime = 10000; level = 100; check(currentSpeed() <= 450, 'no time acceleration');
   memeBag = []; const cycle = Array.from({length: MEME_QUOTES.length}, () => nextMeme());
