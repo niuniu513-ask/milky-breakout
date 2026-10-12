@@ -314,7 +314,7 @@ function makeLevel(lv) {
   const speed = Math.max(330, Math.min(540, 330 + chapter * 19 + [0,3,7,10,-4,13,17,21,30,35][phase]));
   return { level: lv, chapter, phase, lesson: CHAPTER_LESSONS[chapter], rhythm: RHYTHM[phase],
     rows: rows.map(row=>row.join('')), speed, cardPool: unlocked, lessonCard,
-    dropBudget: unlocked.length ? Math.min(4, 2 + Math.floor(selected.length / 18)) : 0 };
+    dropBudget: unlocked.length ? Math.min(8, 4 + Math.floor((selected.length + 12) / 14)) : 0 };
 }
 const LEVEL_CONFIGS = (() => {
   const used = new Set();
@@ -803,7 +803,7 @@ function dropCard(x, y, type = null, guaranteed = false) {
 }
 function maybeDrop(x, y, guaranteedCard = null) {
   if (guaranteedCard) return dropCard(x,y,guaranteedCard,true);
-  if (Math.random() > (frenzy > 0 ? 0.25 : 0.16)) return false;
+  if (Math.random() > (frenzy > 0 ? 0.45 : 0.30)) return false;
   return dropCard(x,y);
 }
 function applyPower(type) {
