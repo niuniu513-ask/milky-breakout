@@ -610,10 +610,6 @@ function startLevel(lv) {
   resetPaddle();
   paddle.x = W / 2;
   buildBricks(lv);
-  if (!endless && LEVEL_CONFIGS[lv - 1].lessonCard) {
-    const type = LEVEL_CONFIGS[lv - 1].lessonCard;
-    cheer = { text: "新道具 · " + POWER_INFO[type].short, sub: CARD_RULES[type].tip, t: 0, life: 4 };
-  }
   resetBall();
   saveProgress(lv);   // 每关开局即存检查点，关掉/死掉都不用从头来
 }
