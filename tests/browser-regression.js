@@ -3,7 +3,7 @@
   function assert(ok, label) { if (!ok) throw new Error(label); checks.push(label); }
   settings.sound = false;
   newGame(); state = S.PLAY; showDlg(null);
-  assert(level === 1 && lives === START_LIVES && bricks.length === 16, 'new game');
+  assert(level === 1 && lives === START_LIVES && bricks.length === 28, 'new game');
   assert(document.activeElement.tagName !== 'BUTTON', 'game keyboard focus');
   const k = bricks[0];
   damageBrick(k, 99);
