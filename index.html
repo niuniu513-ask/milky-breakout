@@ -153,8 +153,8 @@
       </details>
       <details class="guide"><summary>玩法与道具说明</summary>
         <p>打空普通奶块即可过关，100 关分为十个主题章节，通关后可继续无尽模式。奶块上的星星代表额外耐久；灰色钢砖无法击碎，草莓爆炸块会引爆邻居。</p>
-        <p>第 2 关加宽 · 第 4 关减速 · 第 12 关磁力<br>第 22 关分裂 · 第 32 关激光 · 第 52 关穿透<br>激光与穿透会互相替换；同类接取刷新时间<br>前 100 关只掉落有益道具，无尽模式才有风险道具。</p>
-        <p>每关补满四颗心，击碎奶块解救伙伴。使用挡板接球，拾取掉落道具，连击提高得分。</p>
+        <p>第 2 关加宽 · 第 4 关减速 · 第 8 关吸卡<br>第 12 关磁力 · 第 18 关重击 · 第 22 关分裂<br>第 32 关激光 · 第 42 关星爆 · 第 52 关穿透<br>重击、激光、穿透互相替换；同类刷新时间<br>前 100 关只掉落有益道具，无尽模式才有风险道具。</p>
+        <p>吸卡只牵引附近有益道具；重击每撞砖扣两点耐久；星爆锁定离奶珠最近的奶块，并打击它周围的一片奶块。每关补满四颗心，击碎奶块解救伙伴。使用挡板接球，拾取掉落道具，连击提高得分。</p>
         <p>连续击碎奶块可提高倍率，连击 8 次触发暴走。续玩会恢复关卡开局的分数与解救数，并补满四颗心。</p>
       </details>
     </div>
@@ -220,6 +220,9 @@ const POWER_INFO = {
   pierce:{ label: "P", color: "#c98af0", name: "奶珠穿透", short: "穿透" },
   laser: { label: "L", color: "#f2a05a", name: "激光奶炮", short: "激光" },
   catch: { label: "C", color: "#f27bb8", name: "磁力奶蛙", short: "磁力" },
+  attract: { label: "A", color: "#59bfb4", name: "奶糖吸卡", short: "吸卡" },
+  heavy: { label: "H", color: "#d6aa44", name: "奶珠重击", short: "重击" },
+  nova: { label: "N", color: "#eb85b5", name: "草莓星爆", short: "星爆" },
   shrink:{ label: "-", color: "#9aa7ad", name: "减肥奶茶", short: "变窄" },
   fast:  { label: "+", color: "#8a7ad9", name: "浓缩奶咖", short: "加速!" },
 };
@@ -227,12 +230,15 @@ const POWER_INFO = {
 /* ---------- 关卡（8 列字符画，1~3 = 奶块耐久） ---------- */
 const CHAPTERS = ["奶香草地", "草莓花园", "布丁小镇", "云朵牧场", "蜂蜜森林", "星糖海湾", "奶娃乐园", "月光城堡", "彩虹银河", "奶蛙庆典"];
 const CARD_RULES = {
-  wide: { unlock: 2, weight: 26, tip: "挡板加宽 10 秒，更容易接球" },
-  slow: { unlock: 4, weight: 24, tip: "减速 8 秒，瞄准更从容" },
-  catch: { unlock: 12, weight: 16, tip: "磁力 8 秒，点击或空格释放" },
-  multi: { unlock: 22, weight: 18, tip: "分裂奶珠，最多五球" },
-  laser: { unlock: 32, weight: 10, tip: "激光 6 秒，替换穿透效果" },
-  pierce: { unlock: 52, weight: 6, tip: "穿透 5 秒，替换激光效果" }
+  wide: { unlock: 2, weight: 22, tip: "挡板加宽 10 秒，更容易接球" },
+  slow: { unlock: 4, weight: 18, tip: "减速 8 秒，瞄准更从容" },
+  attract: { unlock: 8, weight: 10, tip: "吸卡 8 秒，附近道具向挡板靠拢" },
+  catch: { unlock: 12, weight: 10, tip: "磁力 8 秒，点击或空格释放" },
+  heavy: { unlock: 18, weight: 8, tip: "重击 7 秒，每次撞砖扣两点耐久" },
+  multi: { unlock: 22, weight: 14, tip: "分裂奶珠，最多五球" },
+  laser: { unlock: 32, weight: 8, tip: "激光 6 秒，替换重击或穿透" },
+  nova: { unlock: 42, weight: 5, tip: "锁定最近奶块，90 范围内各扣一点耐久" },
+  pierce: { unlock: 52, weight: 5, tip: "穿透 5 秒，替换重击或激光" }
 };
 const CHAPTER_LESSONS = ["接球与瞄准", "阶梯与侧路", "打开入口", "爆炸连锁", "左右绕行", "选择接卡时机", "优先击破厚砖", "多球与分区", "组合路线", "奶娃综合挑战"];
 const RHYTHM = ["教学", "教学", "练习", "练习", "爽感", "组合", "组合", "组合", "挑战", "章末"];
@@ -256,7 +262,7 @@ function makeLevel(lv) {
   }
   cells.sort((a,b) => a.priority - b.priority || a.r - b.r || a.c - b.c);
   const relief = phase === 4 ? 0.78 : phase < 2 ? 0.92 : phase >= 8 ? 1.05 : 1;
-  const target = lv === 1 ? 16 : Math.round((16 + (lv - 1) * 0.50) * relief);
+  const target = lv === 1 ? 16 : Math.round((16 + (lv - 1) * (lv < 21 ? 0.50 : 0.53)) * relief);
   const brickCount = Math.min(cells.length, Math.round(target / (lv < 12 ? 1 : lv < 62 ? 1.25 : 1.45)));
   const selected = cells.slice(0, Math.max(8, brickCount));
   let extra = Math.max(0, target - selected.length);
@@ -273,7 +279,7 @@ function makeLevel(lv) {
   }
   const unlocked = Object.keys(CARD_RULES).filter(type => lv >= CARD_RULES[type].unlock);
   const lessonCard = unlocked.find(type => CARD_RULES[type].unlock === lv) || null;
-  const speed = Math.max(280, Math.min(440, 280 + chapter * 15 + [0,0,4,6,-6,7,9,11,17,20][phase]));
+  const speed = Math.max(280, Math.min(465, (280 + chapter * 15 + [0,0,4,6,-6,7,9,11,17,20][phase]) * (lv <= 5 ? 1 : 1.06)));
   return { level: lv, chapter, phase, lesson: CHAPTER_LESSONS[chapter], rhythm: RHYTHM[phase],
     rows: rows.map(row=>row.join('')), speed, cardPool: unlocked, lessonCard,
     dropBudget: unlocked.length ? Math.min(6, 2 + Math.floor(selected.length / 12)) : 0 };
@@ -433,7 +439,7 @@ let balls = [];          // {x,y,vx,vy,speed,stuck}
 let bricks = [];         // {x,y,w,h,hp,maxHp}
 let powers = [];         // 掉落道具 {x,y,type,vy}
 let parts = [];          // 粒子
-let effects = { wide: 0, slow: 0, pierce: 0 };
+let effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0, heavy: 0, attract: 0 };
 let shake = 0;
 let launched = false;
 let rescued = 0;         // 解救奶蛙计数
@@ -563,7 +569,7 @@ function startLevel(lv) {
   endless = lv > LEVELS.length;
   lives = START_LIVES; playTime = 0;
   if (lv > bestLevel) { bestLevel = lv; storage.set("milkyBreakout.bestLevel", bestLevel); }
-  effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0 };
+  effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0, heavy: 0, attract: 0 };
   powers = []; parts = []; bullets = []; rescueFrogs = []; floats = []; combo = 0;
   laserTimer = 0; shake = 0;
   dropsUsed = 0; cheer = null;
@@ -769,8 +775,24 @@ function applyPower(type) {
   cheer = { text: POWER_INFO[type].name, sub: CARD_RULES[type]?.tip || "无尽挑战 · 风险道具", t: 0, life: 1.8 };
   if (type === "wide") { effects.wide = 10; paddle.w = paddle.baseW * 1.35; }
   else if (type === "slow") { effects.slow = 8; balls.forEach(b => { const s = currentSpeed(); const m = Math.hypot(b.vx, b.vy) || 1; b.vx *= s / m; b.vy *= s / m; }); }
-  else if (type === "pierce") { effects.pierce = 5; effects.laser = 0; bullets = []; }
-  else if (type === "laser") { effects.laser = 6; effects.pierce = 0; }
+  else if (type === "pierce") { effects.pierce = 5; effects.laser = 0; effects.heavy = 0; bullets = []; }
+  else if (type === "laser") { effects.laser = 6; effects.pierce = 0; effects.heavy = 0; }
+  else if (type === "heavy") { effects.heavy = 7; effects.laser = 0; effects.pierce = 0; bullets = []; }
+  else if (type === "attract") { effects.attract = 8; }
+  else if (type === "nova") {
+    const source = balls.find(b => !b.stuck) || { x: paddle.x, y: PADDLE_Y };
+    const targets = bricks.filter(k => !k.steel);
+    const anchor = targets.reduce((closest, k) => {
+      const distance = (k.x + k.w / 2 - source.x) ** 2 + (k.y + k.h / 2 - source.y) ** 2;
+      return !closest || distance < closest.distance ? { k, distance } : closest;
+    }, null);
+    if (anchor) {
+      const x = anchor.k.x + anchor.k.w / 2, y = anchor.k.y + anchor.k.h / 2;
+      const affected = targets.filter(k => Math.hypot(k.x + k.w / 2 - x, k.y + k.h / 2 - y) <= 90);
+      rings.push({ x, y, t: 0, life: 0.65, max: 90, color: POWER_INFO.nova.color });
+      affected.forEach(k => damageBrick(k, 1));
+    }
+  }
   else if (type === "catch") { effects.catch = 8; }
   else if (type === "shrink") { effects.wide = 8; paddle.w = paddle.baseW * 0.75; paddle.face = "hurt"; paddle.faceTimer = 1.2; }
   else if (type === "fast") { balls.forEach(b => { if (b.stuck) return; const s = currentSpeed() * 1.35; const m = Math.hypot(b.vx, b.vy) || 1; b.vx *= s / m; b.vy *= s / m; }); }
@@ -916,7 +938,7 @@ function stepBall(b, dt) {
     if (!k.steel && effects.pierce > 0) {
       b.pierced = b.pierced || new Set(); b.pierced.add(k);
     }
-    damageBrick(k, 1, b);
+    damageBrick(k, effects.heavy > 0 ? 2 : 1, b);
     // 钢砖永远反弹；穿透模式下普通砖不反弹
     if (k.steel || effects.pierce <= 0) {
       // 判定反弹轴
@@ -936,7 +958,7 @@ function loseLife() {
   SFX.lose();
   spawnDanmaku(SAD_QUOTES[Math.floor(Math.random() * SAD_QUOTES.length)], true);
   paddle.face = "hurt"; paddle.faceTimer = 1.4;
-  effects.wide = 0; effects.slow = 0; effects.pierce = 0; effects.laser = 0; effects.catch = 0;
+  effects.wide = 0; effects.slow = 0; effects.pierce = 0; effects.laser = 0; effects.catch = 0; effects.heavy = 0; effects.attract = 0;
   paddle.w = paddle.baseW;
   if (lives <= 0) {
     gameOver(false);
@@ -1005,6 +1027,8 @@ function update(dt) {
     }
   }
   if (effects.catch > 0) effects.catch -= dt;
+  if (effects.heavy > 0) effects.heavy -= dt;
+  if (effects.attract > 0) effects.attract -= dt;
   // 激光奶弹
   for (let i = bullets.length - 1; i >= 0; i--) {
     const bl = bullets[i];
@@ -1068,6 +1092,10 @@ function update(dt) {
   for (let i = powers.length - 1; i >= 0; i--) {
     const p = powers[i];
     p.y += p.vy * dt;
+    if (effects.attract > 0 && p.y >= PADDLE_Y - 200) {
+      // Only beneficial cards are attracted; risk cards remain avoidable in endless mode.
+      if (CARD_RULES[p.type]) p.x += clamp(paddle.x - p.x, -180 * dt, 180 * dt);
+    }
     if (p.y > H + 20) { powers.splice(i, 1); continue; }
     if (p.y + 10 >= PADDLE_Y && p.y - 10 <= PADDLE_Y + paddle.h &&
         Math.abs(p.x - paddle.x) < paddle.w / 2 + 23) {
@@ -1248,14 +1276,14 @@ function draw() {
   }
   // 效果状态
   let ex = 16;
-  [["wide", effects.wide], ["slow", effects.slow], ["pierce", effects.pierce], ["laser", effects.laser], ["catch", effects.catch]].forEach(([t, v]) => {
+  [["wide", effects.wide], ["slow", effects.slow], ["pierce", effects.pierce], ["laser", effects.laser], ["catch", effects.catch], ["heavy", effects.heavy], ["attract", effects.attract]].forEach(([t, v]) => {
     if (v > 0) {
       ctx.textAlign = "right";
       ctx.fillStyle = POWER_INFO[t].color;
       ctx.font = "700 12px sans-serif";
       ctx.textAlign = "left";
       ctx.fillText((t === "wide" && paddle.w < paddle.baseW ? POWER_INFO.shrink.short : POWER_INFO[t].short) + " " + Math.ceil(v) + "s", ex, 78);
-      ex += 82;
+      ex += 68;
     }
   });
 
@@ -1357,6 +1385,14 @@ function draw() {
     roundRect(paddle.x - paddle.w / 2 - 2, PADDLE_Y - 9, 8, 11, 3); ctx.fill(); ctx.stroke();
     roundRect(paddle.x + paddle.w / 2 - 6, PADDLE_Y - 9, 8, 11, 3); ctx.fill(); ctx.stroke();
   }
+  // 吸卡状态：静态提示不依赖热闹特效开关。
+  if (effects.attract > 0) {
+    ctx.strokeStyle = POWER_INFO.attract.color; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(paddle.x - paddle.w / 2 - 12, PADDLE_Y - 22);
+    ctx.lineTo(paddle.x - paddle.w / 2 - 4, PADDLE_Y - 13);
+    ctx.moveTo(paddle.x + paddle.w / 2 + 12, PADDLE_Y - 22);
+    ctx.lineTo(paddle.x + paddle.w / 2 + 4, PADDLE_Y - 13); ctx.stroke();
+  }
   // 磁力光环
   if (effects.catch > 0) {
     ctx.strokeStyle = "rgba(242,123,184,0.85)"; ctx.lineWidth = 2;
@@ -1376,6 +1412,10 @@ function draw() {
   }
   // 球（奶珠）
   balls.forEach(b => {
+    if (effects.heavy > 0) {
+      ctx.strokeStyle = POWER_INFO.heavy.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R + 3, 0, Math.PI * 2); ctx.stroke();
+    }
     if (b.frog) {
       // 奶蛙分身：朝运动方向的小奶蛙球 + 拖尾
       const ta = Math.atan2(b.vy, b.vx) + Math.PI / 2;

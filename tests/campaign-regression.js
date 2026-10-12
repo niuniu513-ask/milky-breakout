@@ -7,7 +7,7 @@
   for (let lv = 1; lv <= 100; lv++) {
     startLevel(lv); state = S.PLAY;
     check(!endless && lives === START_LIVES && bricks.length > 0 && !bricks.some(b => b.steel), 'valid friendly level ' + lv);
-    check(currentSpeed() >= 280 && currentSpeed() <= 450, 'bounded speed ' + lv);
+    check(currentSpeed() >= 280 && currentSpeed() <= 465, 'bounded speed ' + lv);
     const signature = JSON.stringify(bricks); buildBricks(lv);
     check(JSON.stringify(bricks) === signature, 'deterministic retry ' + lv);
     const checkpointScore = score, checkpointRescue = rescued;
@@ -66,7 +66,7 @@
   check(powers.length > 0 && powers.every(p => !['fast', 'shrink'].includes(p.type)), 'campaign beneficial drops only');
   newGame();
   check(bricks.every(k => k.hp === 1), 'gentle first level durability');
-  playTime = 10000; level = 100; check(currentSpeed() <= 450, 'no time acceleration');
+  playTime = 10000; level = 100; check(currentSpeed() <= 465, 'no time acceleration');
   memeBag = []; const cycle = Array.from({length: MEME_QUOTES.length}, () => nextMeme());
   check(new Set(cycle).size === MEME_QUOTES.length && !cycle.includes('city不city啊'), 'fresh meme cycle without repetitions');
   return { passed: checks.length, uniqueLayouts: new Set(LEVELS.map(r => r.join('/'))).size };
