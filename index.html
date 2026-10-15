@@ -171,7 +171,7 @@
       </details>
       <details class="guide"><summary>玩法与道具说明</summary>
         <p>打空普通奶块即可过关，100 关分为十个主题章节，通关后可继续无尽模式。奶块上的星星代表额外耐久；灰色钢砖无法击碎，草莓爆炸块会引爆邻居。</p>
-        <p>第 2 关加宽 · 第 4 关减速 · 第 8 关吸卡<br>第 12 关磁力 · 第 18 关重击 · 第 22 关分裂<br>第 32 关激光 · 第 42 关星爆 · 第 52 关穿透<br>重击、激光、穿透互相替换；同类刷新时间<br>前 100 关只掉落有益道具，无尽模式才有风险道具。</p>
+        <p>全部 10 种技能从第一关起即可掉落。<br>加宽、减速、吸卡、磁力、重击、分裂、子弹、星爆、穿透、无限火力。<br>子弹双排连射 3 秒；无限火力三排连射 5 秒。<br>重击、子弹、穿透、无限火力互相替换；同类刷新时间。<br>前 100 关只掉落有益道具，无尽模式才有风险道具。</p>
         <p>吸卡只牵引附近有益道具；重击每撞砖扣两点耐久；星爆锁定离奶珠最近的奶块，并打击它周围的一片奶块。每关补满四颗心，击碎奶块解救伙伴。使用挡板接球，拾取掉落道具，连击提高得分。</p>
         <p>连续击碎奶块可提高倍率，连击 8 次触发暴走。续玩会恢复关卡开局的分数与解救数，并补满四颗心。</p>
       </details>
@@ -250,7 +250,8 @@ const POWER_INFO = {
   multi: { label: "M", color: "#f27b7b", name: "分裂三球", short: "分裂" },
   slow:  { label: "S", color: "#7bb3f2", name: "时间放慢", short: "减速" },
   pierce:{ label: "P", color: "#c98af0", name: "奶珠穿透", short: "穿透" },
-  laser: { label: "L", color: "#f2a05a", name: "激光奶炮", short: "激光" },
+  laser: { label: "L", color: "#f2a05a", name: "奶弹连射", short: "子弹" },
+  rapid: { label: "R", color: "#ef637d", name: "无限火力", short: "火力" },
   catch: { label: "C", color: "#f27bb8", name: "磁力奶蛙", short: "磁力" },
   attract: { label: "A", color: "#59bfb4", name: "奶糖吸卡", short: "吸卡" },
   heavy: { label: "H", color: "#d6aa44", name: "奶珠重击", short: "重击" },
@@ -262,15 +263,16 @@ const POWER_INFO = {
 /* ---------- 关卡（8 列字符画，1~3 = 奶块耐久） ---------- */
 const CHAPTERS = ["奶香草地", "草莓花园", "布丁小镇", "云朵牧场", "蜂蜜森林", "星糖海湾", "奶娃乐园", "月光城堡", "彩虹银河", "奶蛙庆典"];
 const CARD_RULES = {
-  wide: { unlock: 2, weight: 22, tip: "挡板加宽 8 秒，更容易接球" },
-  slow: { unlock: 4, weight: 18, tip: "减速 8 秒，瞄准更从容" },
-  attract: { unlock: 8, weight: 10, tip: "吸卡 8 秒，附近道具向挡板靠拢" },
-  catch: { unlock: 12, weight: 10, tip: "磁力 8 秒，点击或空格释放" },
-  heavy: { unlock: 18, weight: 8, tip: "重击 7 秒，每次撞砖扣两点耐久" },
-  multi: { unlock: 22, weight: 14, tip: "分裂奶珠，最多五球" },
-  laser: { unlock: 32, weight: 8, tip: "激光 6 秒，替换重击或穿透" },
-  nova: { unlock: 42, weight: 5, tip: "锁定最近奶块，90 范围内各扣一点耐久" },
-  pierce: { unlock: 52, weight: 5, tip: "穿透 5 秒，替换重击或激光" }
+  wide: { weight: 18, tip: "挡板加宽 8 秒，更容易接球" },
+  slow: { weight: 15, tip: "减速 8 秒，瞄准更从容" },
+  attract: { weight: 10, tip: "吸卡 8 秒，附近道具向挡板靠拢" },
+  catch: { weight: 8, tip: "磁力 8 秒，点击或空格释放" },
+  heavy: { weight: 10, tip: "重击 7 秒，每次撞砖扣两点耐久" },
+  multi: { weight: 13, tip: "分裂奶珠，最多五球" },
+  laser: { weight: 12, tip: "双排子弹持续 3 秒，移动挡板瞄准" },
+  nova: { weight: 5, tip: "锁定最近奶块，90 范围内各扣一点耐久" },
+  pierce: { weight: 6, tip: "穿透 5 秒，替换其他持续攻击" },
+  rapid: { weight: 3, tip: "无限火力 5 秒，三排高速连射、无需弹药" }
 };
 const CHAPTER_LESSONS = ["接球与瞄准", "阶梯与侧路", "打开入口", "爆炸连锁", "左右绕行", "选择接卡时机", "优先击破厚砖", "多球与分区", "组合路线", "奶娃综合挑战"];
 const RHYTHM = ["教学", "教学", "练习", "练习", "爽感", "组合", "组合", "组合", "挑战", "章末"];
@@ -309,8 +311,8 @@ function makeLevel(lv) {
     const bombs = selected.filter(cell => (cell.c + cell.r * 3 + lv) % (phase === 4 ? 4 : 11) === 0).slice(0, phase === 4 ? 4 : 2);
     bombs.forEach(cell => rows[cell.r][cell.c] = 'B');
   }
-  const unlocked = Object.keys(CARD_RULES).filter(type => lv >= CARD_RULES[type].unlock);
-  const lessonCard = unlocked.find(type => CARD_RULES[type].unlock === lv) || null;
+  const unlocked = Object.keys(CARD_RULES);
+  const lessonCard = null;
   const speed = Math.max(330, Math.min(540, 330 + chapter * 19 + [0,3,7,10,-4,13,17,21,30,35][phase]));
   return { level: lv, chapter, phase, lesson: CHAPTER_LESSONS[chapter], rhythm: RHYTHM[phase],
     rows: rows.map(row=>row.join('')), speed, cardPool: unlocked, lessonCard,
@@ -477,7 +479,7 @@ let balls = [];          // {x,y,vx,vy,speed,stuck}
 let bricks = [];         // {x,y,w,h,hp,maxHp}
 let powers = [];         // 掉落道具 {x,y,type,vy}
 let parts = [];          // 粒子
-let effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0, heavy: 0, attract: 0 };
+let effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0, heavy: 0, attract: 0, rapid: 0 };
 let shake = 0;
 let launched = false;
 let rescued = 0;         // 解救奶蛙计数
@@ -607,7 +609,7 @@ function startLevel(lv) {
   endless = lv > LEVELS.length;
   lives = START_LIVES; playTime = 0;
   if (lv > bestLevel) { bestLevel = lv; storage.set("milkyBreakout.bestLevel", bestLevel); }
-  effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0, heavy: 0, attract: 0 };
+  effects = { wide: 0, slow: 0, pierce: 0, laser: 0, catch: 0, heavy: 0, attract: 0, rapid: 0 };
   powers = []; parts = []; bullets = []; rescueFrogs = []; floats = []; combo = 0;
   laserTimer = 0; shake = 0;
   dropsUsed = 0; cheer = null;
@@ -812,9 +814,10 @@ function applyPower(type) {
   cheer = { text: POWER_INFO[type].name, sub: CARD_RULES[type]?.tip || "无尽挑战 · 风险道具", t: 0, life: 1.8 };
   if (type === "wide") { effects.wide = 8; paddle.w = paddle.baseW * 1.25; }
   else if (type === "slow") { effects.slow = 8; balls.forEach(b => { const s = currentSpeed(); const m = Math.hypot(b.vx, b.vy) || 1; b.vx *= s / m; b.vy *= s / m; }); }
-  else if (type === "pierce") { effects.pierce = 5; effects.laser = 0; effects.heavy = 0; bullets = []; }
-  else if (type === "laser") { effects.laser = 6; effects.pierce = 0; effects.heavy = 0; }
-  else if (type === "heavy") { effects.heavy = 7; effects.laser = 0; effects.pierce = 0; bullets = []; }
+  else if (type === "pierce") { effects.pierce = 5; effects.laser = 0; effects.heavy = 0; effects.rapid = 0; bullets = []; }
+  else if (type === "laser") { effects.laser = 3; effects.pierce = 0; effects.heavy = 0; effects.rapid = 0; bullets = []; laserTimer = 0; }
+  else if (type === "rapid") { effects.rapid = 5; effects.laser = 0; effects.pierce = 0; effects.heavy = 0; bullets = []; laserTimer = 0; }
+  else if (type === "heavy") { effects.heavy = 7; effects.laser = 0; effects.pierce = 0; effects.rapid = 0; bullets = []; }
   else if (type === "attract") { effects.attract = 8; }
   else if (type === "nova") {
     const source = balls.find(b => !b.stuck) || { x: paddle.x, y: PADDLE_Y };
@@ -995,7 +998,7 @@ function loseLife() {
   SFX.lose();
   spawnDanmaku(SAD_QUOTES[Math.floor(Math.random() * SAD_QUOTES.length)], true);
   paddle.face = "hurt"; paddle.faceTimer = 1.4;
-  effects.wide = 0; effects.slow = 0; effects.pierce = 0; effects.laser = 0; effects.catch = 0; effects.heavy = 0; effects.attract = 0;
+  effects.wide = 0; effects.slow = 0; effects.pierce = 0; effects.laser = 0; effects.catch = 0; effects.heavy = 0; effects.attract = 0; effects.rapid = 0;
   paddle.w = paddle.baseW;
   if (lives <= 0) {
     gameOver(false);
@@ -1053,15 +1056,20 @@ function update(dt) {
   if (effects.wide  > 0) { effects.wide  -= dt; if (effects.wide  <= 0) paddle.w = paddle.baseW; }
   if (effects.slow  > 0) { effects.slow  -= dt; if (effects.slow  <= 0) balls.forEach(b => { if (b.stuck) return; const s = currentSpeed(); const m = Math.hypot(b.vx, b.vy) || 1; b.vx *= s / m; b.vy *= s / m; }); }
   if (effects.pierce > 0) effects.pierce -= dt;
-  if (effects.laser > 0) {
-    effects.laser -= dt;
-    laserTimer -= dt;
-    if (laserTimer <= 0) {
-      laserTimer = 0.45;
-      bullets.push({ x: paddle.x - paddle.w / 2 + 6, y: PADDLE_Y - 6 });
-      bullets.push({ x: paddle.x + paddle.w / 2 - 6, y: PADDLE_Y - 6 });
-      SFX.laser();
+  const firing = effects.rapid > 0 ? "rapid" : effects.laser > 0 ? "laser" : null;
+  if (firing) {
+    // Account for only the active part of this frame, so expiry never grants an extra volley.
+    const activeTime = Math.min(dt, effects[firing]);
+    const interval = firing === "rapid" ? 0.12 : 0.30;
+    const offsets = firing === "rapid" ? [-paddle.w / 2 + 6, 0, paddle.w / 2 - 6] : [-paddle.w / 2 + 6, paddle.w / 2 - 6];
+    let volleys = 0;
+    while (laserTimer < activeTime) {
+      offsets.forEach(offset => bullets.push({ x: paddle.x + offset, y: PADDLE_Y - 6 }));
+      laserTimer += interval; volleys++;
     }
+    laserTimer -= activeTime;
+    effects[firing] = Math.max(0, effects[firing] - dt);
+    if (volleys) SFX.laser();
   }
   if (effects.catch > 0) effects.catch -= dt;
   if (effects.heavy > 0) effects.heavy -= dt;
@@ -1313,7 +1321,7 @@ function draw() {
   }
   // 效果状态
   let ex = 16;
-  [["wide", effects.wide], ["slow", effects.slow], ["pierce", effects.pierce], ["laser", effects.laser], ["catch", effects.catch], ["heavy", effects.heavy], ["attract", effects.attract]].forEach(([t, v]) => {
+  [["wide", effects.wide], ["slow", effects.slow], ["pierce", effects.pierce], ["laser", effects.laser], ["catch", effects.catch], ["heavy", effects.heavy], ["attract", effects.attract], ["rapid", effects.rapid]].forEach(([t, v]) => {
     if (v > 0) {
       ctx.textAlign = "right";
       ctx.fillStyle = POWER_INFO[t].color;
@@ -1417,10 +1425,11 @@ function draw() {
   ctx.fill(); ctx.stroke();
   drawFrog(paddle.x, PADDLE_Y + 2, paddle.face, 0.9);
   // 激光炮管
-  if (effects.laser > 0) {
+  if (effects.laser > 0 || effects.rapid > 0) {
     ctx.fillStyle = "#8a99a5"; ctx.strokeStyle = "#6b7a85"; ctx.lineWidth = 1.5;
     roundRect(paddle.x - paddle.w / 2 - 2, PADDLE_Y - 9, 8, 11, 3); ctx.fill(); ctx.stroke();
     roundRect(paddle.x + paddle.w / 2 - 6, PADDLE_Y - 9, 8, 11, 3); ctx.fill(); ctx.stroke();
+    if (effects.rapid > 0) { roundRect(paddle.x - 4, PADDLE_Y - 11, 8, 13, 3); ctx.fill(); ctx.stroke(); }
   }
   // 吸卡状态：静态提示不依赖热闹特效开关。
   if (effects.attract > 0) {

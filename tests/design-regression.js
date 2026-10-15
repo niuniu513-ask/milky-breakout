@@ -2,11 +2,11 @@
   const checks=[];
   function check(value, name) { if(!value) throw Error(name); checks.push(name); }
   settings.sound=false; settings.motion=false;
-  const unlocks = {wide:2,slow:4,attract:8,catch:12,heavy:18,multi:22,laser:32,nova:42,pierce:52};
+  const skillTypes = ["wide","slow","attract","catch","heavy","multi","laser","nova","pierce","rapid"];
   for(let lv=1; lv<=100; lv++) {
     startLevel(lv); state=S.PLAY;
     const cfg=LEVEL_CONFIGS[lv-1];
-    check(cfg.cardPool.every(t=>lv>=unlocks[t]) && cfg.cardPool.length===Object.keys(unlocks).filter(t=>lv>=unlocks[t]).length, 'unlock pool '+lv);
+    check(cfg.cardPool.length===skillTypes.length && skillTypes.every(t=>cfg.cardPool.includes(t)), 'unlock pool '+lv);
     check(cfg.rhythm===RHYTHM[(lv-1)%10] && cfg.lesson===CHAPTER_LESSONS[Math.floor((lv-1)/10)], 'chapter lesson '+lv);
     for(let i=0;i<30;i++) dropCard(240,300);
     check(powers.every(p=>cfg.cardPool.includes(p.type)) && dropsUsed<=cfg.dropBudget, 'budget and eligible cards '+lv);
@@ -27,7 +27,7 @@
   startLevel(60); state=S.PLAY;
   applyPower('laser'); applyPower('pierce');
   check(effects.pierce===5 && effects.laser===0 && bullets.length===0, 'pierce replaces laser');
-  applyPower('laser'); check(effects.laser===6 && effects.pierce===0, 'laser replaces pierce');
+  applyPower('laser'); check(effects.laser===3 && effects.pierce===0, 'laser replaces pierce');
   applyPower('wide'); applyPower('wide'); check(Math.abs(paddle.w-paddle.baseW*1.25)<0.001 && effects.wide===8, 'wide refresh without stacking');
   effects.wide=0.001; update(1/120); check(paddle.w===paddle.baseW, 'wide expiry');
   launch(); applyPower('slow'); const speed=Math.hypot(balls[0].vx,balls[0].vy);
@@ -76,11 +76,33 @@
   bricks=[nearby,adjacent,far,steel]; balls=[{x:126,y:230,vx:0,vy:-300,stuck:false}]; applyPower('laser');
   applyPower('nova');
   check(nearby.hp===2 && adjacent.hp===2 && far.hp===3 && steel.hp===9999, 'nova area damage excludes distant and steel bricks');
-  check(effects.laser===6, 'instant nova leaves timed attack unchanged');
+  check(effects.laser===3, 'instant nova leaves timed attack unchanged');
   bricks=[{x:100,y:160,w:52,h:22,hp:1,maxHp:1}];applyPower('nova');
   check(bricks.length===0, 'nova can clear final brick'); slowmoT=0;update(1/120);
   check(state===S.LEVELUP && progress.level===61, 'nova final brick saves next checkpoint');
   startLevel(60); state=S.PLAY; bricks=[]; const beforeEmpty=score; applyPower('nova');
   check(score===beforeEmpty, 'nova tolerates empty board');
+  for (const type of ['laser','rapid']) {
+    startLevel(1); state=S.PLAY;
+    let emitted=0; bullets.push=function(...items){emitted+=items.length;return Array.prototype.push.apply(this,items);};
+    applyPower(type); // Switching attacks intentionally replaces the projectile list.
+    bullets.push=function(...items){emitted+=items.length;return Array.prototype.push.apply(this,items);};
+    check(effects[type]===(type==='laser'?3:5), type+' full duration');
+    update(1/120); check(emitted===(type==='laser'?2:3), type+' immediate volley');
+    togglePause();const remaining=effects[type];update(0.1);
+    check(effects[type]===remaining, type+' pauses');togglePause();
+    for(let i=1;i<610;i++) update(1/120);
+    check(effects[type]===0, type+' expires');
+    check(type==='laser'?emitted>=20&&emitted<=22:emitted>=123&&emitted<=129, type+' expected fire rate');
+    const stopped=emitted;update(0.1);check(emitted===stopped,type+' stops emitting');
+    applyPower(type);applyPower(type);check(effects[type]===(type==='laser'?3:5),type+' refresh only');
+    applyPower('heavy');check(!effects.laser&&!effects.rapid&&bullets.length===0,type+' replaced by heavy');
+  }
+  startLevel(1); state=S.PLAY; applyPower('pierce');applyPower('rapid');
+  check(!effects.pierce&&!effects.heavy&&!effects.laser&&effects.rapid===5,'rapid replaces other attacks');
+  applyPower('laser');check(!effects.rapid&&effects.laser===3,'bullets replace rapid');
+  applyPower('rapid');applyPower('pierce');check(!effects.rapid&&effects.pierce===5,'pierce replaces rapid');
+  applyPower('rapid');loseLife();check(!effects.rapid,'rapid clears on life loss');
+  applyPower('rapid');startLevel(2);check(!effects.rapid&&bullets.length===0,'rapid clears across levels');
   return {passed:checks.length};
 })()
